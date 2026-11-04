@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">GlucoseFrame</string>
+    <string name="widget_name">Glucosa</string>
+    <string name="widget_graph_name">Glucosa + gráfica</string>
+</resources>

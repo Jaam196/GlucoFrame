@@ -1,0 +1,6 @@
+{
+  "name": "GlucoseFrame",
+  "description": "Marco digital de glucosa para tablet con soporte de LibreLinkUp, Nightscout y Juggluco.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

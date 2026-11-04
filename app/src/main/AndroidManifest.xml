@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Exact wake-up alarms keep glucose readings coming in the background -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <!-- Lets xDrip+ send its glucose broadcast to this app -->
+    <uses-permission android:name="com.eveningoutpost.dexdrip.permissions.RECEIVE_BG_ESTIMATE" />
+
+    <application
+        android:name=".GlucoseFrameApplication"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:theme="@style/Theme.MyApplication">
+
+        <!-- Android 16 property to restrict resizability / maintain orientation restrictions on tablets -->
+        <property
+            android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+            android:value="false" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:launchMode="singleTop"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.MyApplication">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Home/Launcher alias (disabled by default, toggled via settings for kiosk/dedicated frame) -->
+        <activity-alias
+            android:name=".HomeLauncherAlias"
+            android:enabled="false"
+            android:exported="true"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Foreground service for continuous glucose display in status bar and background sync -->
+        <service
+            android:name=".service.GlucoseForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="glucose_monitoring" />
+        </service>
+
+        <!-- Home screen app widget provider -->
+        <receiver
+            android:name=".widget.GlucoseWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/glucose_widget_info" />
+        </receiver>
+
+        <!-- Home screen widget: glucose + delta + graph -->
+        <receiver
+            android:name=".widget.GlucoseGraphWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_graph_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/glucose_graph_widget_info" />
+        </receiver>
+
+        <!-- Glucose broadcasts from other apps on this device (xDrip+, Juggluco, Diabox, Dexcom BYODA).
+             Only used while "Apps locales" is the selected source. -->
+        <receiver
+            android:name=".data.broadcast.GlucoseBroadcastReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.eveningoutpost.dexdrip.BgEstimate" />
+                <action android:name="com.outshineiot.diabox.BgEstimate" />
+                <action android:name="glucodata.Minute" />
+                <action android:name="com.dexcom.cgm.EXTERNAL_BROADCAST" />
+                <action android:name="com.dexcom.g7.EXTERNAL_BROADCAST" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Wake-up alarm that reads glucose in the background -->
+        <receiver
+            android:name=".sync.SyncAlarmReceiver"
+            android:exported="false" />
+
+        <!-- "Posponer" button of the glucose alarms -->
+        <receiver
+            android:name=".service.AlarmActionReceiver"
+            android:exported="false" />
+
+        <!-- Receiver for scheduling background synchronization upon device boot -->
+        <receiver
+            android:name=".sync.BootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>
