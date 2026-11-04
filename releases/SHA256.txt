@@ -1,0 +1,1 @@
+f2445a13b895271eaacc2f90aebba3d9a91baa472abaaa8c0d581a6818f97a2a  releases/GlucoFrame-1.18.0-debug.apk
