@@ -16,8 +16,8 @@ android {
     applicationId = "com.aistudio.glucoseframe.tabcg"
     minSdk = 21
     targetSdk = 36
-    versionCode = 1
-    versionName = "1.0"
+    versionCode = 18
+    versionName = "1.18.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
