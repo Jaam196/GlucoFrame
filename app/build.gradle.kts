@@ -26,11 +26,17 @@ android {
   // and updating Android apps in AI Studio.
   signingConfigs {
     create("release") {
-      val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/my-upload-key.jks"
+      // Orden: variable de entorno (AI Studio) -> gradle.properties del usuario -> valor por defecto.
+      val keystorePath =
+        System.getenv("KEYSTORE_PATH")
+          ?: (project.findProperty("KEYSTORE_PATH") as String?)
+          ?: "${rootDir}/my-upload-key.jks"
       storeFile = file(keystorePath)
-      storePassword = System.getenv("STORE_PASSWORD")
+      storePassword =
+        System.getenv("STORE_PASSWORD") ?: (project.findProperty("STORE_PASSWORD") as String?)
       keyAlias = "upload"
-      keyPassword = System.getenv("KEY_PASSWORD")
+      keyPassword =
+        System.getenv("KEY_PASSWORD") ?: (project.findProperty("KEY_PASSWORD") as String?)
     }
     create("debugConfig") {
       storeFile = file("${rootDir}/debug.keystore")
